@@ -1,335 +1,194 @@
 <!DOCTYPE html>
+
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8" />
-  <title>Kingdom Ran 後台管理</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-  <script src="https://cdn.ckeditor.com/4.25.1-lts/full/ckeditor.js"></script>
-  <style>
+<meta charset="utf-8"/>
+<title>Kingdom Ran 官網</title>
+<style>
     body {
-      background: #111;
+      background: url('222_compressed.png') no-repeat center top #000;
+      background-size: cover;
       color: #fff;
-      font-family: "Microsoft JhengHei", sans-serif;
-      padding: 20px;
-      line-height: 1.6;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
     }
-    h1, h2, label {
-      color: #ffd700;
+    header {
+      text-align: center;
+      padding: 30px 0 10px;
     }
-    h1 { font-size: 28px; margin-bottom: 20px; }
-    h2 { margin-top: 30px; font-size: 22px; }
-    label {
+    #logo {
+      max-height: 220px;
+      animation: glow 2s ease-in-out infinite alternate;
+    }
+    @keyframes glow {
+      0% { filter: drop-shadow(0 0 6px #00ffff); }
+      50% { filter: drop-shadow(0 0 18px #00ffcc); }
+      100% { filter: drop-shadow(0 0 6px #00ffff); }
+    }
+    marquee {
+      color: #000;
       font-weight: bold;
+      padding: 6px 12px;
+      background: url('https://rossoran.com/images/scroll_bg.png') repeat-x;
+      width: 1000px;
+      margin: 0 auto;
+      border: 1px solid #ff4444;
       display: block;
-      margin-top: 12px;
+      text-align: center;
     }
-    input, textarea, button, select {
-      display: block;
-      margin-top: 6px;
-      margin-bottom: 12px;
-      width: 100%;
-      padding: 10px;
-      font-size: 15px;
-      border-radius: 4px;
-      border: 1px solid #555;
-      background: #1c1c1c;
-      color: #fff;
+    section {
+      padding: 20px;
     }
-    textarea {
-      min-height: 80px;
-    }
-    .form-section {
-      margin-bottom: 40px;
-      padding: 15px;
-      border: 1px solid #333;
-      border-radius: 5px;
-      background: #1a1a1a;
-    }
-    .logout-btn {
-      background: #333;
-      color: yellow;
-      border: none;
-      padding: 12px 18px;
-      font-size: 15px;
-      cursor: pointer;
-      border-radius: 4px;
-      margin-top: 40px;
-    }
-    table {
-      width: 100%;
-      margin-top: 20px;
-      color: #fff;
-      border-collapse: collapse;
-    }
-    table th, table td {
+    .announcement {
       border: 1px solid #444;
       padding: 10px;
-      text-align: left;
+      margin-bottom: 10px;
+      background: #111;
     }
-    table th {
-      background-color: #222;
+    .announcement h3 {
       color: #ffcc00;
+      margin: 0 0 5px;
     }
-    button {
-      background: #444;
+    .announcement time {
+      font-size: 12px;
+      color: #aaa;
+    }
+    .server-info {
+      border: 1px solid #444;
+      padding: 10px;
+      background: #111;
+      margin-top: 30px;
+    }
+    .button-area {
+      text-align: center;
+      margin: 20px auto;
+      width: 1000px;
+    }
+    .main-button {
+      display: inline-block;
+      width: 225px;
+      height: 40px;
+      line-height: 40px;
+      margin: 5px 10px;
+      background: url('subbtn_bg.gif') no-repeat center;
+      background-size: contain;
+      color: #ffcc00;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 16px;
+    }
+    .main-button:hover {
+      background: url('btn_rollover.gif') no-repeat center;
       color: #fff;
-      border: none;
-      cursor: pointer;
     }
-    button:hover {
-      background: #666;
+    .embed-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 40px;
+      margin-top: 40px;
+    }
+    .carousel {
+      display: flex;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      gap: 20px;
+      padding: 10px;
+      width: 90%;
+    }
+    .carousel iframe {
+      flex: 0 0 auto;
+      scroll-snap-align: start;
+      border: none;
     }
   </style>
 </head>
 <body>
-  <h1>Kingdom Ran 後台管理</h1>
+<header>
+<img alt="LOGO" id="logo" src=""/>
+</header>
+<div class="button-area">
+<a id="btn-download"><img alt="客戶端下載" src="game_download_btn02_1509.png"/></a><br/>
+<a id="btn-recharge"><img alt="立即充值" onmouseout="this.src='recharge_off.gif'" onmouseover="this.src='recharge_on.gif'" src="recharge_off.gif"/></a><br/>
+<a class="main-button" id="btn-donate">贊助方案</a>
+<a class="main-button" id="btn-fb">粉絲專頁</a>
+<a class="main-button" id="btn-group">社團交流區</a>
+<a class="main-button" id="btn-contact">聯繫客服</a>
+</div>
+<div class="embed-container">
+<iframe allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share" allowfullscreen="" height="540" id="videoFrame" width="960"></iframe>
+<div class="carousel" id="carousel"></div>
+</div>
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-  <div class="form-section">
-    <label>1. LOGO 圖片網址</label>
-    <input type="text" id="logoInput" placeholder="請輸入 LOGO 圖片 URL" />
-  </div>
+const supabase = createClient(
+  'https://zkwxsbgfebrjzvaxxkez.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inprd3hzYmdmZWJyanp2YXh4a2V6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ1NDQ3MjksImV4cCI6MjA2MDEyMDcyOX0.UG6ZzJGPTW11rC9Pjw1TbHDyxqFj_yw6242_Ft6rEGI'
+);
 
-  <div class="form-section">
-    <label>2. 跑馬燈內容</label>
-    <label>跑馬燈標題（支援樣式編輯）</label>
-    <textarea id="marqueeInput"></textarea>
-    <script>CKEDITOR.replace('marqueeInput');</script>
-
-    <label>跑馬燈項目</label>
-    <div id="marqueeList"></div>
-    <button onclick="addMarqueeItem()">＋ 新增跑馬燈項目</button>
-  </div>
-
-  <div class="form-section">
-    <label>3. 遊戲下載網址</label>
-    <input type="text" id="downloadInput" />
-    <label>4. 立即充值網址</label>
-    <input type="text" id="rechargeInput" />
-    <label>5. 贊助方案網址</label>
-    <input type="text" id="donateInput" />
-    <label>6. 粉絲專頁網址</label>
-    <input type="text" id="fbInput" />
-    <label>7. 社團交流區網址</label>
-    <input type="text" id="groupInput" />
-    <label>8. 聯繫客服網址</label>
-    <input type="text" id="contactInput" />
-    <label>9. 影片網址</label>
-    <input type="text" id="videoInput" />
-    <label>11. 伺服器資訊</label>
-    <textarea id="serverInput" placeholder="版本與伺服器狀態"></textarea>
-  </div>
-
-  <button onclick="saveSettings()">儲存所有設定</button>
-
-  <div class="form-section">
-    <h2>10. 最新公告管理</h2>
-    <label>標題</label>
-    <input type="text" id="annTitle" placeholder="輸入公告標題" />
-    <label>編輯者</label>
-    <input type="text" id="annEditor" placeholder="預設為管理員" value="管理員" />
-    <label>類型</label>
-    <select id="annType">
-      <option>- 選擇 -</option>
-      <option value="活動">活動</option>
-      <option value="更新">更新</option>
-      <option value="系統公告">系統公告</option>
-    </select>
-    <label>插圖</label>
-    <input type="file" id="annImage" />
-    <label>公告封面</label>
-    <textarea id="annCover" placeholder="輸入簡短封面內容"></textarea>
-    <label>公告內文</label>
-    <textarea id="annContent"></textarea>
-    <script>CKEDITOR.replace('annContent');</script>
-    <label>日期</label>
-    <input type="date" id="annDate" />
-    <button onclick="addAnnouncement()">新增公告</button>
-    <table>
-      <thead><tr><th>標題</th><th>內容</th><th>日期</th><th>操作</th></tr></thead>
-      <tbody id="annBody"></tbody>
-    </table>
-  </div>
-
-  <button class="logout-btn" onclick="logout()">帳號登出</button>
-
-  <script>
-    const { createClient } = supabase;
-    const supabaseClient = createClient(
-      'https://zkwxsbgfebrjzvaxxkez.supabase.co',
-      'public-anon-key'
-    );
-
-    function addMarqueeItem() {
-  const index = document.querySelectorAll('.marquee-item').length + 1;
-  const id = `marqueeEditor_${Date.now()}`;
-  const div = document.createElement('div');
-  div.className = 'marquee-item';
-  div.innerHTML = `
-    <label>\${index}. 跑馬燈內容:</label>
-    <textarea id="\${id}"></textarea>
-    <div style="margin-top:6px;">
-      <button onclick="moveItemUp(this)">⬆️ 上移</button>
-      <button onclick="moveItemDown(this)">⬇️ 下移</button>
-      <button onclick="removeMarqueeItem(this)">❌ 刪除</button>
-    </div>
-  `;
-  document.getElementById('marqueeList').appendChild(div);
-  setTimeout(() => {
-    CKEDITOR.replace(id, {
-      extraPlugins: 'image2',
-      removePlugins: 'easyimage,cloudservices',
-      filebrowserImageUploadUrl: '/upload_marquee_image'
-    });
-  }, 100);
-}`;
-  const div = document.createElement('div');
-  div.className = 'marquee-item';
-  div.innerHTML = `
-    <label>\${index}. 跑馬燈內容:</label>
-    <textarea id="\${id}"></textarea>
-    <button onclick="removeMarqueeItem(this)">❌ 刪除</button>
-  `;
-  document.getElementById('marqueeList').appendChild(div);
-  setTimeout(() => {
-    CKEDITOR.replace(id, {
-  extraPlugins: 'image2',
-  removePlugins: 'easyimage,cloudservices',
-  filebrowserImageUploadUrl: '/upload_marquee_image'
-});
-  }, 100);
-}
-function removeMarqueeItem(button) {
-  const parent = button.parentElement;
-  if (parent) parent.remove();
-}`;
-      div.className = 'marquee-item';
-      div.innerHTML = `
-        <label>\${index}. 標題與連結:</label>
-        <textarea id="\${id}"></textarea>
-        <button onclick="this.parentElement.remove()">❌ 刪除此項目</button>
-      `;
-      document.getElementById('marqueeList').appendChild(div);
-      setTimeout(() => CKEDITOR.replace(id), 100);
-    }. 標題:</label><input id='title\${index}'><label>連結:</label><input id='link\${index}'>\`;
-      document.getElementById('marqueeList').appendChild(div);
-    }
-
-    async function saveSettings() {
-      const logo = document.getElementById('logoInput').value;
-      const marquee = CKEDITOR.instances.marqueeInput.getData();
-      const download = document.getElementById('downloadInput').value;
-      const recharge = document.getElementById('rechargeInput').value;
-      const donate = document.getElementById('donateInput').value;
-      const fb = document.getElementById('fbInput').value;
-      const group = document.getElementById('groupInput').value;
-      const contact = document.getElementById('contactInput').value;
-      const video = document.getElementById('videoInput').value;
-      const server = document.getElementById('serverInput').value;
-
-      let combined = marquee;
-      const items = document.querySelectorAll('.marquee-item');
-      items.forEach((item, i) => {
-        const title = item.querySelector(`#title${i + 1}`)?.value || '';
-        const link = item.querySelector(`#link${i + 1}`)?.value || '';
-        if (title && link) {
-          combined += \` <a href='\${link}' target='_blank'><span style='color:yellow;'>\${title}</span></a>\`;
-        }
-      });
-
-      const { error } = await supabaseClient.from('settings').update({
-        logo, marquee: combined, download, recharge, donate, fb, group, contact, video, server
-      }).eq('id', 1);
-
-      alert(error ? '儲存失敗' : '儲存成功');
-    }
-
-    async function addAnnouncement() {
-      const title = document.getElementById('annTitle').value;
-      const editor = document.getElementById('annEditor').value;
-      const type = document.getElementById('annType').value;
-      const cover = document.getElementById('annCover').value;
-      const content = CKEDITOR.instances.annContent.getData();
-      const date = document.getElementById('annDate').value;
-      const imageFile = document.getElementById('annImage').files[0];
-      let imageUrl = '';
-
-      if (!title || !content || !date) return alert('請完整輸入公告資訊');
-
-      if (imageFile) {
-        const { data } = await supabaseClient.storage.from('announcement-images')
-          .upload(`ann-${Date.now()}.jpg`, imageFile, {
-            cacheControl: '3600', upsert: false
-          });
-        if (data) imageUrl = \`https://zkwxsbgfebrjzvaxxkez.supabase.co/storage/v1/object/public/announcement-images/\${data.path}\`;
-      }
-
-      await supabaseClient.from('announcement').insert([{ title, editor, type, cover, content, date, image: imageUrl }]);
-      loadAnnouncements();
-    }
-
-    async function loadAnnouncements() {
-      const { data } = await supabaseClient.from('announcement').select('*').order('date', { ascending: false });
-      const tbody = document.getElementById('annBody');
-      tbody.innerHTML = '';
-      data.forEach((item) => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = \`
-          <td><input value="\${item.title}" onchange="updateField(\${item.id}, 'title', this.value)"></td>
-          <td><textarea onchange="updateField(\${item.id}, 'content', this.value)">\${item.content}</textarea></td>
-          <td><input type="date" value="\${item.date}" onchange="updateField(\${item.id}, 'date', this.value)"></td>
-          <td><button onclick="deleteAnnouncement(\${item.id})">刪除</button></td>
-        \`;
-        tbody.appendChild(tr);
-      });
-    }
-
-    async function updateField(id, key, value) {
-      await supabaseClient.from('announcement').update({ [key]: value }).eq('id', id);
-    }
-
-    async function deleteAnnouncement(id) {
-      if (!confirm('確定要刪除這則公告嗎？')) return;
-      await supabaseClient.from('announcement').delete().eq('id', id);
-      loadAnnouncements();
-    }
-
-    async function uploadMarqueeImage(file) {
-  const filename = `marquee-${Date.now()}.jpg`;
-  const { data, error } = await supabaseClient.storage.from('marquee-images')
-    .upload(filename, file, {
-      cacheControl: '3600',
-      upsert: false
-    });
+async function loadSettings() {
+  const { data, error } = await supabase.from("settings").select("*").eq("id", "main").single();
   if (error) {
-    alert('圖片上傳失敗');
-    return '';
+    console.warn("讀取失敗", error.message);
+    return;
   }
-  return `https://zkwxsbgfebrjzvaxxkez.supabase.co/storage/v1/object/public/marquee-images/${filename}`;
-}
-
-function moveItemUp(button) {
-  const item = button.parentElement;
-  const prev = item.previousElementSibling;
-  if (prev && prev.classList.contains('marquee-item')) {
-    item.parentNode.insertBefore(item, prev);
-  }
-}
-
-function moveItemDown(button) {
-  const item = button.parentElement;
-  const next = item.nextElementSibling;
-  if (next && next.classList.contains('marquee-item')) {
-    item.parentNode.insertBefore(next, item);
+  if (data) {
+    document.getElementById('logo').src = data.logo || '';
+    document.getElementById('btn-download').href = data.download || '#';
+    document.getElementById('btn-recharge').href = data.recharge || '#';
+    document.getElementById('btn-donate').href = data.sponsor || '#';
+    document.getElementById('btn-fb').href = data.fb || '#';
+    document.getElementById('btn-group').href = data.group_link || '#';
+    document.getElementById('btn-contact').href = data.support || '#';
+    document.getElementById('videoFrame').src =
+      `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(data.video)}&show_text=false&autoplay=true&mute=1&width=640`;
+    document.getElementById('serverInfo').textContent = data.info || '';
   }
 }
+window.addEventListener("DOMContentLoaded", loadSettings);
+</script><section style="max-width: 700px; margin: 40px auto; background-color: #000; border: 2px solid gold; border-radius: 10px; padding: 20px; color: white; box-shadow: 0 0 10px gold;"><h2 style="color: gold; font-weight: bold; text-align: center; font-size: 20px; margin-bottom: 20px;">📢 最新公告</h2><div id="announcementList" style="display: flex; flex-direction: column; gap: 10px;"></div></section><section style="padding: 40px; text-align: center; color: white;"><h2>🎮 遊戲設定</h2><div id="serverInfo">載入中...</div></section><script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+const supabase = createClient(
+  'https://zkwxsbgfebrjzvaxxkez.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inprd3hzYmdmZWJyanp2YXh4a2V6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ1NDQ3MjksImV4cCI6MjA2MDEyMDcyOX0.UG6ZzJGPTW11rC9Pjw1TbHDyxqFj_yw6242_Ft6rEGI'
+);
 
-function logout() {
-      alert('已登出');
-      location.href = '/';
-    }
+async function loadAnnouncements() {
+  const { data, error } = await supabase.from("announcements").select("*").order("created_at", { ascending: false }).limit(10);
+  const ul = document.getElementById("announcementList");
+  if (!ul) return;
 
-    loadAnnouncements();
-    addMarqueeItem();
-  </script>
-</body>
+  if (error) {
+    console.warn("❌ 公告讀取失敗", error.message);
+    ul.innerHTML = "<li>無法載入公告</li>";
+    return;
+  }
+
+  ul.innerHTML = data.map(item => 
+    `<li style='margin-bottom: 12px;'>
+      <a href='${item.link}' target='_blank' style='color: #4dabf7; text-decoration: none;'>🔗 ${item.title}</a>
+    </li>`
+  ).join("");
+}
+
+loadAnnouncements();
+</script><script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+const supabase = createClient(
+  'https://zkwxsbgfebrjzvaxxkez.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inprd3hzYmdmZWJyanp2YXh4a2V6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ1NDQ3MjksImV4cCI6MjA2MDEyMDcyOX0.UG6ZzJGPTW11rC9Pjw1TbHDyxqFj_yw6242_Ft6rEGI'
+);
+async function updateAnnouncementDates() {
+  const { data } = await supabase.from("announcements").select("created_at").order("created_at", { descending: true }).limit(10);
+  const dates = document.querySelectorAll(".announcement-date");
+  data.forEach((row, i) => {
+    const d = new Date(row.created_at);
+    const dateStr = d.toISOString().split("T")[0].replace(/-/g, "/");
+    if (dates[i]) dates[i].textContent = dateStr;
+  });
+}
+updateAnnouncementDates();
+</script></body>
 </html>
